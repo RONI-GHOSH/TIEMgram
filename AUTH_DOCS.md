@@ -1,6 +1,6 @@
-# TIEMgram Auth API Documentation
+# TIEMgram Auth API Documentation (PostgreSQL)
 
-This document explains the authentication flow and endpoints for the TIEMgram backend.
+This document explains the authentication flow and endpoints for the TIEMgram backend using PostgreSQL and Sequelize.
 
 ## Base URL
 `http://localhost:5000/api/v1/auth`

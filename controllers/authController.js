@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+const { Op } = require('sequelize');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
@@ -11,7 +11,12 @@ const register = asyncHandler(async (req, res) => {
   const { email, password, username, full_name, department, year, semester } = req.body.body || req.body;
 
   // Check if user exists
-  const userExists = await User.findOne({ $or: [{ email }, { username }] });
+  const userExists = await User.findOne({
+    where: {
+      [Op.or]: [{ email }, { username }],
+    },
+  });
+
   if (userExists) {
     res.status(400);
     throw new Error('User already exists with this email or username');
@@ -19,9 +24,9 @@ const register = asyncHandler(async (req, res) => {
 
   // Generate OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  // Create user (not verified yet)
+  // Create user
   const user = await User.create({
     username,
     email,
@@ -35,12 +40,11 @@ const register = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    // Send OTP Email
     await sendEmail({
       email: user.email,
       subject: 'Verify your TIEMgram account',
       message: `Your OTP for registration is: ${otp}. It expires in 10 minutes.`,
-      html: `<h1>Welcome to TIEMgram</h1><p>Your OTP for registration is: <b>${otp}</b></p><p>It expires in 10 minutes.</p>`,
+      html: `<h1>Welcome to TIEMgram</h1><p>Your OTP for registration is: <b>${otp}</b></p>`,
     });
 
     res.status(201).json({
@@ -59,21 +63,21 @@ const register = asyncHandler(async (req, res) => {
 const verifyOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body.body || req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ where: { email } });
 
   if (!user) {
     res.status(404);
     throw new Error('User not found');
   }
 
-  if (user.otp !== otp || user.otpExpires < Date.now()) {
+  if (user.otp !== otp || user.otpExpires < new Date()) {
     res.status(400);
     throw new Error('Invalid or expired OTP');
   }
 
   user.isVerified = true;
-  user.otp = undefined;
-  user.otpExpires = undefined;
+  user.otp = null;
+  user.otpExpires = null;
   await user.save();
 
   res.status(200).json({
@@ -88,8 +92,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body.body || req.body;
 
-  // Check for user email
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ where: { email } });
 
   if (user && (await user.matchPassword(password))) {
     if (!user.isVerified) {
@@ -97,17 +100,16 @@ const login = asyncHandler(async (req, res) => {
       throw new Error('Please verify your email before logging in');
     }
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
-    // Save refresh token to user
     user.refreshToken = refreshToken;
     await user.save();
 
     res.json({
       success: true,
       data: {
-        _id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
         full_name: user.full_name,
@@ -132,7 +134,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     throw new Error('Refresh token is required');
   }
 
-  const user = await User.findOne({ refreshToken: refresh_token });
+  const user = await User.findOne({ where: { refreshToken: refresh_token } });
 
   if (!user) {
     res.status(403);
@@ -140,10 +142,10 @@ const refreshToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET);
+    jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET);
     
-    const newAccessToken = generateAccessToken(user._id);
-    const newRefreshToken = generateRefreshToken(user._id);
+    const newAccessToken = generateAccessToken(user.id);
+    const newRefreshToken = generateRefreshToken(user.id);
 
     user.refreshToken = newRefreshToken;
     await user.save();
@@ -161,27 +163,27 @@ const refreshToken = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Logout / Invalidate token
+// @desc    Logout
 // @route   POST /api/v1/auth/logout
 // @access  Private
 const logout = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findByPk(req.user.id);
 
   if (user) {
-    user.refreshToken = undefined;
+    user.refreshToken = null;
     await user.save();
   }
 
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
-// @desc    Forgot Password - Request OTP
+// @desc    Forgot Password
 // @route   POST /api/v1/auth/forgot-password
 // @access  Public
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body.body || req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ where: { email } });
 
   if (!user) {
     res.status(404);
@@ -190,58 +192,51 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   user.otp = otp;
-  user.otpExpires = Date.now() + 10 * 60 * 1000;
+  user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
 
   await sendEmail({
     email: user.email,
     subject: 'Password Reset OTP',
-    message: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
-    html: `<p>Your OTP for password reset is: <b>${otp}</b></p>`,
+    message: `Your OTP for password reset is: ${otp}.`,
   });
 
   res.status(200).json({ success: true, message: 'OTP sent to email' });
 });
 
-// @desc    Reset Password with OTP
+// @desc    Reset Password
 // @route   POST /api/v1/auth/reset-password
 // @access  Public
 const resetPassword = asyncHandler(async (req, res) => {
   const { email, otp, new_password } = req.body.body || req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ where: { email } });
 
   if (!user) {
     res.status(404);
     throw new Error('User not found');
   }
 
-  if (user.otp !== otp || user.otpExpires < Date.now()) {
+  if (user.otp !== otp || user.otpExpires < new Date()) {
     res.status(400);
     throw new Error('Invalid or expired OTP');
   }
 
   user.password = new_password;
-  user.otp = undefined;
-  user.otpExpires = undefined;
-  user.refreshToken = undefined; // Log out from all devices on password change
+  user.otp = null;
+  user.otpExpires = null;
+  user.refreshToken = null;
   await user.save();
 
   res.status(200).json({ success: true, message: 'Password reset successful' });
 });
 
-// Helper: Generate Access Token
 const generateAccessToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '15m',
-  });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
 
-// Helper: Generate Refresh Token
 const generateRefreshToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: '7d',
-  });
+  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 };
 
 module.exports = {

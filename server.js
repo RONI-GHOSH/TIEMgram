@@ -3,25 +3,22 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const { connectDB, sequelize } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 
 // Load env vars
 dotenv.config();
 
-// Connect to database
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    // Not exiting process to allow development without DB if needed, 
-    // but routes requiring DB will fail.
-  }
-};
-
+// Connect to PostgreSQL
 connectDB();
+
+// Sync Database models
+// In production, use migrations instead of sync({ alter: true })
+if (process.env.NODE_ENV === 'development') {
+  sequelize.sync({ alter: true })
+    .then(() => console.log('Database synced successfully'))
+    .catch(err => console.error('Error syncing database:', err));
+}
 
 const app = express();
 
@@ -44,7 +41,7 @@ app.use('/api/v1/auth', authRoutes);
 
 // Base route
 app.get('/', (req, res) => {
-  res.send('TIEMgram API is running...');
+  res.send('TIEMgram PostgreSQL API is running...');
 });
 
 // Error handling middleware
