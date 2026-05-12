@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { connectDB, sequelize } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const userActionRoutes = require('./routes/userActionRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 // Load env vars
 dotenv.config();
@@ -38,6 +41,9 @@ app.use(cors());
 
 // Mount routers
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/users', userActionRoutes);
+app.use('/api/v1/search', searchRoutes);
 
 // Base route
 app.get('/', (req, res) => {

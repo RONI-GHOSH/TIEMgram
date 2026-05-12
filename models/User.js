@@ -51,6 +51,16 @@ const User = sequelize.define('User', {
   otpExpires: {
     type: DataTypes.DATE,
   },
+  bio: {
+    type: DataTypes.TEXT,
+  },
+  avatar_url: {
+    type: DataTypes.STRING,
+  },
+  is_private: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   refreshToken: {
     type: DataTypes.TEXT,
   },
@@ -70,5 +80,9 @@ const User = sequelize.define('User', {
 User.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+// Associations will be defined in a central models index file or here
+// To keep it simple, we'll define them in controllers or an index file later
+// But let's add helper methods if needed.
 
 module.exports = User;

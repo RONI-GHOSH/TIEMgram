@@ -67,6 +67,50 @@ This document explains the authentication flow and endpoints for the TIEMgram ba
 
 ---
 
+## 4. Profile Management (Protected)
+All profile routes require the `Authorization: Bearer <access_token>` header.
+
+### Get Own Profile
+- **URL**: `/api/v1/profile/me`
+- **Method**: `GET`
+
+### Update Profile
+- **URL**: `/api/v1/profile/me`
+- **Method**: `PATCH`
+- **Body**:
+```json
+{
+  "full_name": "John Doe",
+  "bio": "Updated bio",
+  "department": "CSE",
+  "year": 3,
+  "semester": 5,
+  "is_private": true
+}
+```
+
+### Upload Avatar
+- **URL**: `/api/v1/profile/me/avatar`
+- **Method**: `POST`
+- **Body**: `form-data` with key `avatar` (File)
+
+---
+
+## 5. Search (Protected)
+Search for users by name or username.
+
+### Fuzzy Search
+- **URL**: `/api/v1/search/users?q=john`
+- **Method**: `GET`
+- **Query Params**: `q` (Search string)
+
+### Exact Search
+- **URL**: `/api/v1/search/users/exact?username=john_doe`
+- **Method**: `GET`
+- **Query Params**: `username`
+
+---
+
 ## Security Notes
 - Passwords are hashed using **bcrypt**.
 - **JWT Tokens** are used for stateless authentication.

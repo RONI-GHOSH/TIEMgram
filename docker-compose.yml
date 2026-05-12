@@ -20,3 +20,6 @@ services:
       - EMAIL_USER=your_email@gmail.com
       - EMAIL_PASS=your_app_password
       - NODE_ENV=production
+      - CLOUDINARY_API_KEY=182445911956875
+      - CLOUDINARY_API_SECRET=ZwPN80SyTqd8TJs_lyUsz794Hag
+      - CLOUDINARY_CLOUD_NAME=dd3drikgz
