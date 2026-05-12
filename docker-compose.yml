@@ -9,7 +9,7 @@ services:
     restart: always
     environment:
       - PORT=5000
-      - DB_NAME=tiemgram
+      - DB_NAME=postgres
       - DB_USER=postgres
       - DB_PASS=ycqgSVQ53yuI8FqBuGAN52lFhvbwxFpT0XDLK6cePyVNUxfiXmYdEc5lf9tjKlRf
       - DB_HOST=87.127.157.13
