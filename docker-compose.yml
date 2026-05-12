@@ -12,7 +12,7 @@ services:
       - DB_NAME=postgres
       - DB_USER=postgres
       - DB_PASS=ycqgSVQ53yuI8FqBuGAN52lFhvbwxFpT0XDLK6cePyVNUxfiXmYdEc5lf9tjKlRf
-      - DB_HOST=87.127.157.13
+      - DB_HOST=187.127.157.13
       - DB_PORT=5532
       - JWT_SECRET=your_super_secret_access_token_key_123
       - JWT_REFRESH_SECRET=your_super_secret_refresh_token_key_456
