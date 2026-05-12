@@ -8,6 +8,11 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const userActionRoutes = require('./routes/userActionRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const postRoutes = require('./routes/postRoutes');
+const feedRoutes = require('./routes/feedRoutes');
+
+// Initialize associations
+require('./models/associations');
 
 // Load env vars
 dotenv.config();
@@ -45,6 +50,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/users', userActionRoutes);
 app.use('/api/v1/search', searchRoutes);
+app.use('/api/v1/posts', postRoutes);
+app.use('/api/v1/feed', feedRoutes);
 
 // Base route
 app.get('/', (req, res) => {

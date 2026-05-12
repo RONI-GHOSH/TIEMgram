@@ -17,9 +17,25 @@ const storage = new CloudinaryStorage({
   },
 });
 
+const postStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: 'tiemgram_posts',
+      resource_type: 'auto', // Automatically detect if it's an image or video
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'avi'],
+    };
+  },
+});
+
 const upload = multer({ 
   storage: storage,
   limits: { fileSize: 20 * 1024 * 1024 } // 20MB
 });
 
-module.exports = { cloudinary, upload };
+const uploadPostMedia = multer({
+  storage: postStorage,
+  limits: { fileSize: 100 * 1024 * 1024 } // 100MB for videos
+});
+
+module.exports = { cloudinary, upload, uploadPostMedia };

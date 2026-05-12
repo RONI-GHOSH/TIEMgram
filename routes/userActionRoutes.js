@@ -12,9 +12,13 @@ const {
   getBlockedList,
   getPendingRequests,
 } = require('../controllers/userActionController');
+const { getUserPosts } = require('../controllers/postController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
+
+// Post list for user
+router.get('/:username/posts', getUserPosts);
 
 // Me routes
 router.get('/me/blocked', getBlockedList);

@@ -144,6 +144,7 @@ const getPublicProfile = asyncHandler(async (req, res) => {
 });
 
 const Follow = require('../models/Follow');
+const Post = require('../models/Post');
 
 // @desc    Get quick stats
 // @route   GET /api/v1/profile/:username/stats
@@ -158,11 +159,12 @@ const getProfileStats = asyncHandler(async (req, res) => {
 
   const followersCount = await Follow.count({ where: { followingId: user.id, status: 'accepted' } });
   const followingCount = await Follow.count({ where: { followerId: user.id, status: 'accepted' } });
+  const postsCount = await Post.count({ where: { userId: user.id } });
 
   res.json({
     success: true,
     data: {
-      posts_count: 0, // Still 0 until posts are implemented
+      posts_count: postsCount,
       followers_count: followersCount,
       following_count: followingCount
     }
