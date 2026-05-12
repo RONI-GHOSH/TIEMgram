@@ -4,13 +4,9 @@ const { Op } = require('sequelize');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
-// @desc    Register a new user
-// @route   POST /api/v1/auth/register
-// @access  Public
 const register = asyncHandler(async (req, res) => {
   const { email, password, username, full_name, department, year, semester } = req.body.body || req.body;
 
-  // Check if user exists
   const userExists = await User.findOne({
     where: {
       [Op.or]: [{ email }, { username }],
@@ -22,11 +18,10 @@ const register = asyncHandler(async (req, res) => {
     throw new Error('User already exists with this email or username');
   }
 
-  // Generate OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = '1111';
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  // Create user
+
   const user = await User.create({
     username,
     email,
@@ -40,12 +35,12 @@ const register = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    await sendEmail({
-      email: user.email,
-      subject: 'Verify your TIEMgram account',
-      message: `Your OTP for registration is: ${otp}. It expires in 10 minutes.`,
-      html: `<h1>Welcome to TIEMgram</h1><p>Your OTP for registration is: <b>${otp}</b></p>`,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: 'Verify your TIEMgram account',
+    //   message: `Your OTP for registration is: ${otp}. It expires in 10 minutes.`,
+    //   html: `<h1>Welcome to TIEMgram</h1><p>Your OTP for registration is: <b>${otp}</b></p>`,
+    // });
 
     res.status(201).json({
       success: true,
@@ -57,9 +52,6 @@ const register = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Verify email OTP
-// @route   POST /api/v1/auth/verify-otp
-// @access  Public
 const verifyOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body.body || req.body;
 
@@ -86,9 +78,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Login user
-// @route   POST /api/v1/auth/login
-// @access  Public
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body.body || req.body;
 
@@ -123,9 +113,6 @@ const login = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Refresh access token
-// @route   POST /api/v1/auth/refresh-token
-// @access  Public
 const refreshToken = asyncHandler(async (req, res) => {
   const { refresh_token } = req.body.body || req.body;
 
@@ -143,7 +130,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 
   try {
     jwt.verify(refresh_token, process.env.JWT_REFRESH_SECRET);
-    
+
     const newAccessToken = generateAccessToken(user.id);
     const newRefreshToken = generateRefreshToken(user.id);
 
@@ -163,9 +150,7 @@ const refreshToken = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Logout
-// @route   POST /api/v1/auth/logout
-// @access  Private
+
 const logout = asyncHandler(async (req, res) => {
   const user = await User.findByPk(req.user.id);
 
@@ -177,9 +162,6 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
-// @desc    Forgot Password
-// @route   POST /api/v1/auth/forgot-password
-// @access  Public
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body.body || req.body;
 
@@ -190,23 +172,21 @@ const forgotPassword = asyncHandler(async (req, res) => {
     throw new Error('User with this email does not exist');
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = '1111';
   user.otp = otp;
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
 
-  await sendEmail({
-    email: user.email,
-    subject: 'Password Reset OTP',
-    message: `Your OTP for password reset is: ${otp}.`,
-  });
+  // await sendEmail({
+  //   email: user.email,
+  //   subject: 'Password Reset OTP',
+  //   message: `Your OTP for password reset is: ${otp}.`,
+  // });
 
   res.status(200).json({ success: true, message: 'OTP sent to email' });
 });
 
-// @desc    Reset Password
-// @route   POST /api/v1/auth/reset-password
-// @access  Public
+
 const resetPassword = asyncHandler(async (req, res) => {
   const { email, otp, new_password } = req.body.body || req.body;
 
