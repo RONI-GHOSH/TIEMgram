@@ -11,9 +11,9 @@ services:
       - PORT=5000
       - DB_NAME=tiemgram
       - DB_USER=postgres
-      - DB_PASS=QyCU1QES9qYMW0L11RFAsdDrQpzCSbfvY40imMUhq2baKcntOZh7itzj7GPWQOdo
+      - DB_PASS=ycqgSVQ53yuI8FqBuGAN52lFhvbwxFpT0XDLK6cePyVNUxfiXmYdEc5lf9tjKlRf
       - DB_HOST=87.127.157.13
-      - DB_PORT=5432
+      - DB_PORT=5532
       - JWT_SECRET=your_super_secret_access_token_key_123
       - JWT_REFRESH_SECRET=your_super_secret_refresh_token_key_456
       - EMAIL_SERVICE=gmail
