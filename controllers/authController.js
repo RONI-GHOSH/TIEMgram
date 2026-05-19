@@ -70,11 +70,23 @@ const verifyOtp = asyncHandler(async (req, res) => {
   user.isVerified = true;
   user.otp = null;
   user.otpExpires = null;
+
+  const accessToken = generateAccessToken(user.id);
+  const refreshTokenValue = generateRefreshToken(user.id);
+
+  user.refreshToken = refreshTokenValue;
   await user.save();
 
   res.status(200).json({
     success: true,
-    message: 'Email verified successfully. You can now login.',
+    data: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      full_name: user.full_name,
+      access_token: accessToken,
+      refresh_token: refreshTokenValue,
+    },
   });
 });
 

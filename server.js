@@ -10,6 +10,9 @@ const userActionRoutes = require('./routes/userActionRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const postRoutes = require('./routes/postRoutes');
 const feedRoutes = require('./routes/feedRoutes');
+const storyRoutes = require('./routes/storyRoutes');
+const dbRoutes = require('./routes/dbRoutes');
+
 
 // Initialize associations
 require('./models/associations');
@@ -52,6 +55,9 @@ app.use('/api/v1/users', userActionRoutes);
 app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/feed', feedRoutes);
+app.use('/api/v1/stories', storyRoutes);
+app.use('/api/v1/db', dbRoutes);
+
 
 // Base route
 app.get('/', (req, res) => {
