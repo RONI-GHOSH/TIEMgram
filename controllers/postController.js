@@ -7,12 +7,9 @@ const Follow = require('../models/Follow');
 const Block = require('../models/Block');
 const { Op } = require('sequelize');
 
-// @desc    Create a post
-// @route   POST /api/v1/posts
-// @access  Private
 const createPost = asyncHandler(async (req, res) => {
   const { caption, type, location, tags, is_public } = req.body;
-  
+
   const post = await Post.create({
     userId: req.user.id,
     caption,
@@ -44,9 +41,6 @@ const createPost = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get single post
-// @route   GET /api/v1/posts/:post_id
-// @access  Private
 const getPost = asyncHandler(async (req, res) => {
   const post = await Post.findByPk(req.params.post_id, {
     include: [
@@ -60,7 +54,6 @@ const getPost = asyncHandler(async (req, res) => {
     throw new Error('Post not found');
   }
 
-  // Privacy Check
   if (!post.is_public && post.userId !== req.user.id) {
     const isFollowing = await Follow.findOne({
       where: { followerId: req.user.id, followingId: post.userId, status: 'accepted' }
@@ -71,13 +64,12 @@ const getPost = asyncHandler(async (req, res) => {
     }
   }
 
-  // Block Check
   const isBlocked = await Block.findOne({
     where: {
-        [Op.or]: [
-            { blockerId: req.user.id, blockedId: post.userId },
-            { blockerId: post.userId, blockedId: req.user.id }
-        ]
+      [Op.or]: [
+        { blockerId: req.user.id, blockedId: post.userId },
+        { blockerId: post.userId, blockedId: req.user.id }
+      ]
     }
   });
 
@@ -89,9 +81,6 @@ const getPost = asyncHandler(async (req, res) => {
   res.json({ success: true, data: post });
 });
 
-// @desc    List posts by user
-// @route   GET /api/v1/users/:username/posts
-// @access  Private
 const getUserPosts = asyncHandler(async (req, res) => {
   const user = await User.findOne({ where: { username: req.params.username } });
   if (!user) {
@@ -105,7 +94,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
     const isFollowing = await Follow.findOne({
       where: { followerId: req.user.id, followingId: user.id, status: 'accepted' }
     });
-    
+
     if (!isFollowing) {
       whereClause.is_public = true;
     }
@@ -120,9 +109,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
   res.json({ success: true, data: posts });
 });
 
-// @desc    Edit post
-// @route   PATCH /api/v1/posts/:post_id
-// @access  Private
+
 const editPost = asyncHandler(async (req, res) => {
   const post = await Post.findByPk(req.params.post_id);
 
@@ -146,9 +133,7 @@ const editPost = asyncHandler(async (req, res) => {
   res.json({ success: true, data: post });
 });
 
-// @desc    Delete post
-// @route   DELETE /api/v1/posts/:post_id
-// @access  Private
+
 const deletePost = asyncHandler(async (req, res) => {
   const post = await Post.findByPk(req.params.post_id);
 
@@ -166,9 +151,7 @@ const deletePost = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Post removed' });
 });
 
-// @desc    Like a post
-// @route   POST /api/v1/posts/:post_id/like
-// @access  Private
+
 const likePost = asyncHandler(async (req, res) => {
   const post = await Post.findByPk(req.params.post_id);
   if (!post) {
@@ -178,19 +161,17 @@ const likePost = asyncHandler(async (req, res) => {
 
   try {
     await Like.create({
-        userId: req.user.id,
-        postId: post.id
-      });
-      res.status(200).json({ success: true, message: 'Post liked' });
+      userId: req.user.id,
+      postId: post.id
+    });
+    res.status(200).json({ success: true, message: 'Post liked' });
   } catch (error) {
     res.status(400);
     throw new Error('Post already liked');
   }
 });
 
-// @desc    Unlike a post
-// @route   DELETE /api/v1/posts/:post_id/like
-// @access  Private
+
 const unlikePost = asyncHandler(async (req, res) => {
   const like = await Like.findOne({
     where: { userId: req.user.id, postId: req.params.post_id }
@@ -205,9 +186,7 @@ const unlikePost = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Post unliked' });
 });
 
-// @desc    Get post likers
-// @route   GET /api/v1/posts/:post_id/likes
-// @access  Private
+
 const getPostLikes = asyncHandler(async (req, res) => {
   const likes = await Like.findAll({
     where: { postId: req.params.post_id },
