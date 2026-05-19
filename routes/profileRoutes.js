@@ -7,6 +7,7 @@ const {
   removeAvatar,
   getPublicProfile,
   getProfileStats,
+  getProfileCompleteness,
 } = require('../controllers/profileController');
 const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../config/cloudinary');
@@ -15,6 +16,7 @@ const { upload } = require('../config/cloudinary');
 router.use(protect);
 
 router.get('/me', getMyProfile);
+router.get('/me/completeness', getProfileCompleteness);
 router.patch('/me', updateProfile);
 router.post('/me/avatar', upload.single('avatar'), uploadAvatar);
 router.delete('/me/avatar', removeAvatar);

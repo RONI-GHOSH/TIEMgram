@@ -99,6 +99,20 @@ const getUserPosts = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
+  // Block check
+  const isBlocked = await Block.findOne({
+    where: {
+      [Op.or]: [
+        { blockerId: req.user.id, blockedId: user.id },
+        { blockerId: user.id, blockedId: req.user.id }
+      ]
+    }
+  });
+  if (isBlocked) {
+    res.status(403);
+    throw new Error('Action not allowed');
+  }
+
   let whereClause = { userId: user.id };
 
   if (user.id !== req.user.id) {
@@ -111,13 +125,45 @@ const getUserPosts = asyncHandler(async (req, res) => {
     }
   }
 
+  // Parse pagination query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  // Parse sort parameter ('time' or 'likes')
+  const sort = req.query.sort || 'time';
+
   const posts = await Post.findAll({
     where: whereClause,
-    include: [{ model: PostMedia }],
-    order: [['createdAt', 'DESC']]
+    include: [
+      { model: PostMedia },
+      { model: Like, attributes: ['userId'] }
+    ]
   });
 
-  res.json({ success: true, data: posts });
+  const formattedPosts = posts.map(post => {
+    const postJson = post.toJSON();
+    postJson.likes_count = post.Likes ? post.Likes.length : 0;
+    postJson.is_liked = post.Likes ? post.Likes.some(like => like.userId === req.user.id) : false;
+    delete postJson.Likes;
+    return postJson;
+  });
+
+  if (sort === 'likes') {
+    formattedPosts.sort((a, b) => b.likes_count - a.likes_count);
+  } else {
+    formattedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  const paginatedPosts = formattedPosts.slice(offset, offset + limit);
+
+  res.json({
+    success: true,
+    page,
+    limit,
+    total: formattedPosts.length,
+    data: paginatedPosts
+  });
 });
 
 // @desc    Edit post
