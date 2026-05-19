@@ -2,6 +2,25 @@ const asyncHandler = require('express-async-handler');
 const { Post, PostMedia, User, Follow, Like, Block } = require('../models/associations');
 const { Op } = require('sequelize');
 
+// Helper to parse privacy option from tags and clean them
+const cleanPostTagsAndGetPrivacy = (post) => {
+  if (!post) return null;
+  const postJson = typeof post.toJSON === 'function' ? post.toJSON() : post;
+  
+  const tags = Array.isArray(postJson.tags) ? postJson.tags : [];
+  let privacy = 'public';
+  
+  if (tags.includes('_privacy:private')) {
+    privacy = 'private';
+    postJson.tags = tags.filter(t => t !== '_privacy:private');
+  } else if (!postJson.is_public) {
+    privacy = 'followers-following-only';
+  }
+  
+  postJson.privacy = privacy;
+  return postJson;
+};
+
 const getHomeFeed = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
 
@@ -25,7 +44,17 @@ const getHomeFeed = asyncHandler(async (req, res) => {
 
   const recentFollowerPosts = await Post.findAll({
     where: {
-      userId: { [Op.in]: allowedFollowedIds },
+      [Op.or]: [
+        { userId: req.user.id },
+        {
+          userId: { [Op.in]: followedIds.filter(id => !blockedIds.includes(id)) },
+          [Op.not]: {
+            tags: {
+              [Op.contains]: ['_privacy:private']
+            }
+          }
+        }
+      ],
       createdAt: { [Op.gte]: new Date(Date.now() - 24 * 60 * 60 * 1000) }
     },
     include: [
@@ -38,7 +67,17 @@ const getHomeFeed = asyncHandler(async (req, res) => {
 
   const olderFollowerPosts = await Post.findAll({
     where: {
-      userId: { [Op.in]: allowedFollowedIds },
+      [Op.or]: [
+        { userId: req.user.id },
+        {
+          userId: { [Op.in]: followedIds.filter(id => !blockedIds.includes(id)) },
+          [Op.not]: {
+            tags: {
+              [Op.contains]: ['_privacy:private']
+            }
+          }
+        }
+      ],
       createdAt: { [Op.lt]: new Date(Date.now() - 24 * 60 * 60 * 1000) }
     },
     include: [
@@ -55,6 +94,11 @@ const getHomeFeed = asyncHandler(async (req, res) => {
   const platformRecent = await Post.findAll({
     where: {
       is_public: true,
+      [Op.not]: {
+        tags: {
+          [Op.contains]: ['_privacy:private']
+        }
+      },
       userId: { [Op.notIn]: [...blockedIds, ...allowedFollowedIds] }
     },
     include: [
@@ -68,6 +112,11 @@ const getHomeFeed = asyncHandler(async (req, res) => {
   const platformBest = await Post.findAll({
     where: {
       is_public: true,
+      [Op.not]: {
+        tags: {
+          [Op.contains]: ['_privacy:private']
+        }
+      },
       userId: { [Op.notIn]: [...blockedIds, ...allowedFollowedIds] }
     },
     include: [
@@ -87,7 +136,7 @@ const getHomeFeed = asyncHandler(async (req, res) => {
     [mixedFeed[i], mixedFeed[j]] = [mixedFeed[j], mixedFeed[i]];
   }
   const finalFeed = mixedFeed.map(post => {
-    const postJson = post.toJSON();
+    const postJson = cleanPostTagsAndGetPrivacy(post);
     postJson.likes_count = post.Likes ? post.Likes.length : 0;
     postJson.is_liked = post.Likes ? post.Likes.some(like => like.userId === req.user.id) : false;
     delete postJson.Likes;

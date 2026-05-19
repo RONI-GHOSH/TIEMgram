@@ -136,35 +136,35 @@ VALUES
 
 INSERT INTO "Posts" ("id", "userId", "caption", "type", "location", "tags", "is_public", "createdAt", "updatedAt")
 VALUES
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'A beautiful morning on campus!', 'image', 'Main Quad', '["morning", "campus"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299602', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', 'Studying hard for the midterm exams.', 'text', 'Library', '["study", "midterms"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299603', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'Coding till sunrise!', 'text', 'CSE Lab', '["coding", "hackathon"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '30 hours', CURRENT_TIMESTAMP - INTERVAL '30 hours'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Enjoying the college festival.', 'video', 'Auditorium', '["festival", "fun"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Electronics workshop day 1.', 'image', 'Lab 302', '["electronics", "workshop"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '35 hours', CURRENT_TIMESTAMP - INTERVAL '35 hours');
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'A beautiful morning on campus!', 'image', 'Main Quad', '["morning", "campus"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299602', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', 'Studying hard for the midterm exams.', 'text', 'Library', '["study", "midterms"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299603', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'Coding till sunrise!', 'text', 'CSE Lab', '["coding", "hackathon"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '30 hours', CURRENT_TIMESTAMP - INTERVAL '30 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Enjoying the college festival.', 'video', 'Auditorium', '["festival", "fun"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Electronics workshop day 1.', 'image', 'Lab 302', '["electronics", "workshop"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '35 hours', CURRENT_TIMESTAMP - INTERVAL '35 hours');
 
 INSERT INTO "PostMedia" ("id", "postId", "url", "type")
 VALUES
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299611', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image'),
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299612', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'https://res.cloudinary.com/dd3drikgz/video/upload/fest.mp4', 'video'),
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299613', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'https://res.cloudinary.com/dd3drikgz/image/upload/lab.png', 'image');
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299611', '111d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image'),
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299612', '111d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'https://res.cloudinary.com/dd3drikgz/video/upload/fest.mp4', 'video'),
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299613', '111d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'https://res.cloudinary.com/dd3drikgz/image/upload/lab.png', 'image');
 
 INSERT INTO "Likes" ("userId", "postId")
 VALUES
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299601'),
-('e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299602'),
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299603'),
-('f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299603'),
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299605');
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299601'),
+('e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', '111d7eb4-8f35-4cb2-8d76-d6b7b6299602'),
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299603'),
+('f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', '111d7eb4-8f35-4cb2-8d76-d6b7b6299603'),
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299605');
 
 INSERT INTO "Stories" ("id", "userId", "mediaUrl", "type", "text_content", "text_color", "background_color", "sticker_id", "duration_seconds", "audience", "expiresAt", "createdAt")
 VALUES
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image', 'First day of sem!', '#FFFFFF', '#E91E8C', 'stk_party', 10, 'followers', CURRENT_TIMESTAMP + INTERVAL '22 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299622', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', NULL, 'text', 'Midterm prep starting...', '#FFFFFF', '#E91E8C', NULL, 5, 'public', CURRENT_TIMESTAMP + INTERVAL '20 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299623', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', NULL, 'sticker', NULL, '#FFFFFF', '#E91E8C', 'stk_sleep', 5, 'public', CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '25 hours');
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image', 'First day of sem!', '#FFFFFF', '#E91E8C', 'stk_party', 10, 'followers', CURRENT_TIMESTAMP + INTERVAL '22 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299622', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', NULL, 'text', 'Midterm prep starting...', '#FFFFFF', '#E91E8C', NULL, 5, 'public', CURRENT_TIMESTAMP + INTERVAL '20 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299623', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', NULL, 'sticker', NULL, '#FFFFFF', '#E91E8C', 'stk_sleep', 5, 'public', CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '25 hours');
 
 INSERT INTO "StoryViews" ("storyId", "userId")
 VALUES
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'd748805f-0f6f-4cb1-97b7-5a1df47de510');
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'd748805f-0f6f-4cb1-97b7-5a1df47de510');
 ```
 
 ---
@@ -364,7 +364,7 @@ Removes the current user's profile picture.
 {
   "success": true,
   "data": {
-    "id": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+    "id": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
     "userId": "e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3",
     "caption": "A beautiful morning on campus!",
     "type": "image",
@@ -375,8 +375,8 @@ Removes the current user's profile picture.
     "updatedAt": "2026-05-19T10:15:30.000Z",
     "PostMedia": [
       {
-        "id": "m22d7eb4-8f35-4cb2-8d76-d6b7b6299611",
-        "postId": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+        "id": "222d7eb4-8f35-4cb2-8d76-d6b7b6299611",
+        "postId": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
         "url": "https://res.cloudinary.com/...",
         "type": "image"
       }
@@ -407,7 +407,7 @@ Retrieve posts uploaded by a specific user with pagination and sorting by time o
   "total": 1,
   "data": [
     {
-      "id": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+      "id": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
       "userId": "e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3",
       "caption": "A beautiful morning on campus!",
       "type": "image",
@@ -420,8 +420,8 @@ Retrieve posts uploaded by a specific user with pagination and sorting by time o
       "is_liked": true,
       "PostMedia": [
         {
-          "id": "m22d7eb4-8f35-4cb2-8d76-d6b7b6299611",
-          "postId": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+          "id": "222d7eb4-8f35-4cb2-8d76-d6b7b6299611",
+          "postId": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
           "url": "https://res.cloudinary.com/...",
           "type": "image"
         }
@@ -482,7 +482,7 @@ Retrieve posts uploaded by a specific user with pagination and sorting by time o
 {
   "success": true,
   "data": {
-    "id": "s33d7eb4-8f35-4cb2-8d76-d6b7b6299621",
+    "id": "333d7eb4-8f35-4cb2-8d76-d6b7b6299621",
     "userId": "e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3",
     "mediaUrl": "https://res.cloudinary.com/...",
     "type": "image",
@@ -508,7 +508,7 @@ Retrieve posts uploaded by a specific user with pagination and sorting by time o
   "success": true,
   "data": [
     {
-      "id": "s33d7eb4-8f35-4cb2-8d76-d6b7b6299621",
+      "id": "333d7eb4-8f35-4cb2-8d76-d6b7b6299621",
       "userId": "e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3",
       "mediaUrl": "https://res.cloudinary.com/...",
       "type": "image",
@@ -588,7 +588,7 @@ Fetches a highly personalized blended discovery feed with page offsets and dynam
   "success": true,
   "data": [
     {
-      "id": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+      "id": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
       "userId": "e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3",
       "caption": "A beautiful morning on campus!",
       "type": "image",
@@ -606,8 +606,8 @@ Fetches a highly personalized blended discovery feed with page offsets and dynam
       },
       "PostMedia": [
         {
-          "id": "m22d7eb4-8f35-4cb2-8d76-d6b7b6299611",
-          "postId": "p11d7eb4-8f35-4cb2-8d76-d6b7b6299601",
+          "id": "222d7eb4-8f35-4cb2-8d76-d6b7b6299611",
+          "postId": "111d7eb4-8f35-4cb2-8d76-d6b7b6299601",
           "url": "https://res.cloudinary.com/...",
           "type": "image"
         }

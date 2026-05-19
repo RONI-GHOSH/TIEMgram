@@ -17,7 +17,7 @@ router.use(protect);
 
 router.post('/', uploadPostMedia.array('media', 10), createPost);
 router.get('/:post_id', getPost);
-router.patch('/:post_id', editPost);
+router.patch('/:post_id', uploadPostMedia.array('media', 10), editPost);
 router.delete('/:post_id', deletePost);
 
 // Like routes

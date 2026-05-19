@@ -241,10 +241,99 @@ const getStoryViewers = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get active stories for a specific user
+// @route   GET /api/v1/stories/user/:username
+// @route   GET /api/v1/users/:username/stories
+// @access  Private
+const getUserActiveStories = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  const user = await User.findOne({ where: { username } });
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // 1. Check blocks
+  const isBlocked = await Block.findOne({
+    where: {
+      [Op.or]: [
+        { blockerId: req.user.id, blockedId: user.id },
+        { blockerId: user.id, blockedId: req.user.id }
+      ]
+    }
+  });
+
+  if (isBlocked) {
+    res.status(403);
+    throw new Error('Action not allowed');
+  }
+
+  // 2. Determine visibility logic
+  let whereClause = {
+    userId: user.id,
+    expiresAt: { [Op.gt]: new Date() }
+  };
+
+  if (req.user.id !== user.id) {
+    // Viewer is not the owner, check follow status
+    const isFollowing = await Follow.findOne({
+      where: {
+        followerId: req.user.id,
+        followingId: user.id,
+        status: 'accepted'
+      }
+    });
+
+    if (!isFollowing) {
+      if (user.is_private) {
+        res.status(403);
+        throw new Error('You must be following this user to view their stories');
+      } else {
+        // Public user, but not following, so only show public stories
+        whereClause.audience = 'public';
+      }
+    }
+  }
+
+  // 3. Fetch stories
+  const stories = await Story.findAll({
+    where: whereClause,
+    include: [
+      {
+        model: User,
+        attributes: ['username', 'full_name', 'avatar_url', 'is_private']
+      },
+      {
+        model: StoryView,
+        required: false
+      }
+    ],
+    order: [['createdAt', 'DESC']]
+  });
+
+  // 4. Format stories with is_viewed and views_count
+  const formattedStories = stories.map(story => {
+    const storyJson = story.toJSON();
+    storyJson.views_count = story.StoryViews ? story.StoryViews.length : 0;
+    storyJson.is_viewed = story.StoryViews ? story.StoryViews.some(v => v.userId === req.user.id) : false;
+    delete storyJson.StoryViews;
+    return storyJson;
+  });
+
+  res.status(200).json({
+    success: true,
+    count: formattedStories.length,
+    total: formattedStories.length,
+    data: formattedStories
+  });
+});
+
 module.exports = {
   createStory,
   getActiveStories,
   deleteStory,
   viewStory,
-  getStoryViewers
+  getStoryViewers,
+  getUserActiveStories
 };

@@ -13,12 +13,14 @@ const {
   getPendingRequests,
 } = require('../controllers/userActionController');
 const { getUserPosts } = require('../controllers/postController');
+const { getUserActiveStories } = require('../controllers/storyController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
 // Post list for user
 router.get('/:username/posts', getUserPosts);
+router.get('/:username/stories', getUserActiveStories);
 
 // Me routes
 router.get('/me/blocked', getBlockedList);

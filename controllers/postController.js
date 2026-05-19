@@ -7,16 +7,70 @@ const Follow = require('../models/Follow');
 const Block = require('../models/Block');
 const { Op } = require('sequelize');
 
+// Helper to parse privacy option from tags and clean them
+const cleanPostTagsAndGetPrivacy = (post) => {
+  if (!post) return null;
+  const postJson = typeof post.toJSON === 'function' ? post.toJSON() : post;
+  
+  const tags = Array.isArray(postJson.tags) ? postJson.tags : [];
+  let privacy = 'public';
+  
+  if (tags.includes('_privacy:private')) {
+    privacy = 'private';
+    postJson.tags = tags.filter(t => t !== '_privacy:private');
+  } else if (!postJson.is_public) {
+    privacy = 'followers-following-only';
+  }
+  
+  postJson.privacy = privacy;
+  return postJson;
+};
+
+// Helper to determine if a post is private before loading full model
+const getPostPrivacy = (post) => {
+  if (!post) return 'public';
+  const tags = Array.isArray(post.tags) ? post.tags : [];
+  if (tags.includes('_privacy:private')) {
+    return 'private';
+  }
+  return post.is_public ? 'public' : 'followers-following-only';
+};
+
 const createPost = asyncHandler(async (req, res) => {
-  const { caption, type, location, tags, is_public } = req.body;
+  const { caption, type, location, tags, is_public, privacy } = req.body;
+
+  let parsedTags = tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [];
+  if (!Array.isArray(parsedTags)) {
+    parsedTags = [];
+  }
+
+  let isPublicValue = true;
+  if (privacy !== undefined) {
+    if (privacy === 'private') {
+      isPublicValue = false;
+      if (!parsedTags.includes('_privacy:private')) {
+        parsedTags.push('_privacy:private');
+      }
+    } else if (privacy === 'followers-following-only' || privacy === 'followers') {
+      isPublicValue = false;
+      parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+    } else {
+      isPublicValue = true;
+      parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+    }
+  } else if (is_public !== undefined) {
+    const isPub = is_public === 'false' || is_public === false ? false : true;
+    isPublicValue = isPub;
+    parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+  }
 
   const post = await Post.create({
     userId: req.user.id,
     caption,
     type,
     location,
-    tags: tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [],
-    is_public: is_public === 'false' ? false : true,
+    tags: parsedTags,
+    is_public: isPublicValue,
   });
 
   if (req.files && req.files.length > 0) {
@@ -37,7 +91,7 @@ const createPost = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: fullPost
+    data: cleanPostTagsAndGetPrivacy(fullPost)
   });
 });
 
@@ -45,7 +99,8 @@ const getPost = asyncHandler(async (req, res) => {
   const post = await Post.findByPk(req.params.post_id, {
     include: [
       { model: User, attributes: ['username', 'full_name', 'avatar_url', 'is_private'] },
-      { model: PostMedia }
+      { model: PostMedia },
+      { model: Like, attributes: ['userId'] }
     ]
   });
 
@@ -54,13 +109,28 @@ const getPost = asyncHandler(async (req, res) => {
     throw new Error('Post not found');
   }
 
-  if (!post.is_public && post.userId !== req.user.id) {
-    const isFollowing = await Follow.findOne({
-      where: { followerId: req.user.id, followingId: post.userId, status: 'accepted' }
-    });
-    if (!isFollowing) {
+  const privacy = getPostPrivacy(post);
+  const isCreator = post.userId === req.user.id;
+
+  if (!isCreator) {
+    if (privacy === 'private') {
       res.status(403);
       throw new Error('This post is private');
+    }
+
+    if (privacy === 'followers-following-only') {
+      const isFollowingOrFollowed = await Follow.findOne({
+        where: {
+          [Op.or]: [
+            { followerId: req.user.id, followingId: post.userId, status: 'accepted' },
+            { followerId: post.userId, followingId: req.user.id, status: 'accepted' }
+          ]
+        }
+      });
+      if (!isFollowingOrFollowed) {
+        res.status(403);
+        throw new Error('This post is restricted to followers/following');
+      }
     }
   }
 
@@ -78,7 +148,12 @@ const getPost = asyncHandler(async (req, res) => {
     throw new Error('Action not allowed');
   }
 
-  res.json({ success: true, data: post });
+  const postJson = cleanPostTagsAndGetPrivacy(post);
+  postJson.likes_count = post.Likes ? post.Likes.length : 0;
+  postJson.is_liked = post.Likes ? post.Likes.some(like => like.userId === req.user.id) : false;
+  delete postJson.Likes;
+
+  res.json({ success: true, data: postJson });
 });
 
 const getUserPosts = asyncHandler(async (req, res) => {
@@ -105,11 +180,26 @@ const getUserPosts = asyncHandler(async (req, res) => {
   let whereClause = { userId: user.id };
 
   if (user.id !== req.user.id) {
-    const isFollowing = await Follow.findOne({
-      where: { followerId: req.user.id, followingId: user.id, status: 'accepted' }
+    const isFollowingOrFollowed = await Follow.findOne({
+      where: {
+        [Op.or]: [
+          { followerId: req.user.id, followingId: user.id, status: 'accepted' },
+          { followerId: user.id, followingId: req.user.id, status: 'accepted' }
+        ]
+      }
     });
 
-    if (!isFollowing) {
+    if (isFollowingOrFollowed) {
+      whereClause[Op.and] = [
+        {
+          [Op.not]: {
+            tags: {
+              [Op.contains]: ['_privacy:private']
+            }
+          }
+        }
+      ];
+    } else {
       whereClause.is_public = true;
     }
   }
@@ -131,7 +221,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
   });
 
   const formattedPosts = posts.map(post => {
-    const postJson = post.toJSON();
+    const postJson = cleanPostTagsAndGetPrivacy(post);
     postJson.likes_count = post.Likes ? post.Likes.length : 0;
     postJson.is_liked = post.Likes ? post.Likes.some(like => like.userId === req.user.id) : false;
     delete postJson.Likes;
@@ -169,14 +259,65 @@ const editPost = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to edit this post');
   }
 
-  const { caption, is_public, tags } = req.body;
-  if (caption) post.caption = caption;
-  if (is_public !== undefined) post.is_public = is_public;
-  if (tags) post.tags = tags;
+  const { caption, type, location, tags, is_public, privacy } = req.body;
+  if (caption !== undefined) post.caption = caption;
+  if (type !== undefined) post.type = type;
+  if (location !== undefined) post.location = location;
+
+  let parsedTags = tags !== undefined 
+    ? (tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : []) 
+    : (post.tags || []);
+  if (!Array.isArray(parsedTags)) {
+    parsedTags = [];
+  }
+
+  let isPublicValue = post.is_public;
+  if (privacy !== undefined) {
+    if (privacy === 'private') {
+      isPublicValue = false;
+      if (!parsedTags.includes('_privacy:private')) {
+        parsedTags.push('_privacy:private');
+      }
+    } else if (privacy === 'followers-following-only' || privacy === 'followers') {
+      isPublicValue = false;
+      parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+    } else {
+      isPublicValue = true;
+      parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+    }
+  } else if (is_public !== undefined) {
+    const isPub = is_public === 'false' || is_public === false ? false : true;
+    isPublicValue = isPub;
+    parsedTags = parsedTags.filter(t => t !== '_privacy:private');
+  }
+
+  post.tags = parsedTags;
+  post.is_public = isPublicValue;
+
+  // Handle media updates if new files are uploaded
+  if (req.files && req.files.length > 0) {
+    // Delete existing post media from DB
+    await PostMedia.destroy({ where: { postId: post.id } });
+    
+    // Create new post media entries
+    const mediaPromises = req.files.map(file => {
+      const mediaType = file.mimetype.startsWith('video') ? 'video' : 'image';
+      return PostMedia.create({
+        postId: post.id,
+        url: file.path,
+        type: mediaType
+      });
+    });
+    await Promise.all(mediaPromises);
+  }
 
   await post.save();
 
-  res.json({ success: true, data: post });
+  const fullPost = await Post.findByPk(post.id, {
+    include: [{ model: PostMedia }]
+  });
+
+  res.json({ success: true, data: cleanPostTagsAndGetPrivacy(fullPost) });
 });
 
 
@@ -239,7 +380,12 @@ const getPostLikes = asyncHandler(async (req, res) => {
     include: [{ model: User, attributes: ['username', 'full_name', 'avatar_url'] }]
   });
 
-  res.json({ success: true, data: likes.map(l => l.User) });
+  res.json({
+    success: true,
+    likes_count: likes.length,
+    count: likes.length,
+    data: likes.map(l => l.User)
+  });
 });
 
 module.exports = {

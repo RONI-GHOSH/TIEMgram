@@ -131,43 +131,43 @@ VALUES
 INSERT INTO "Posts" ("id", "userId", "caption", "type", "location", "tags", "is_public", "createdAt", "updatedAt")
 VALUES
 -- Recent Follower Posts (<= 24hr)
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'A beautiful morning on campus!', 'image', 'Main Quad', '["morning", "campus"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299602', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', 'Studying hard for the midterm exams.', 'text', 'Library', '["study", "midterms"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'A beautiful morning on campus!', 'image', 'Main Quad', '["morning", "campus"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299602', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', 'Studying hard for the midterm exams.', 'text', 'Library', '["study", "midterms"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
 
 -- Older Follower Posts (> 24hr)
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299603', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'Coding till sunrise!', 'text', 'CSE Lab', '["coding", "hackathon"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '30 hours', CURRENT_TIMESTAMP - INTERVAL '30 hours'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299603', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'Coding till sunrise!', 'text', 'CSE Lab', '["coding", "hackathon"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '30 hours', CURRENT_TIMESTAMP - INTERVAL '30 hours'),
 
 -- Platform Discovery Posts (Unfollowed users, e.g. Bob Brown)
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Enjoying the college festival.', 'video', 'Auditorium', '["festival", "fun"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
-('p11d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Electronics workshop day 1.', 'image', 'Lab 302', '["electronics", "workshop"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '35 hours', CURRENT_TIMESTAMP - INTERVAL '35 hours');
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Enjoying the college festival.', 'video', 'Auditorium', '["festival", "fun"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
+('111d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'Electronics workshop day 1.', 'image', 'Lab 302', '["electronics", "workshop"]'::jsonb, TRUE, CURRENT_TIMESTAMP - INTERVAL '35 hours', CURRENT_TIMESTAMP - INTERVAL '35 hours');
 
 -- Insert dummy post media
 INSERT INTO "PostMedia" ("id", "postId", "url", "type")
 VALUES
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299611', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image'),
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299612', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'https://res.cloudinary.com/dd3drikgz/video/upload/fest.mp4', 'video'),
-('m22d7eb4-8f35-4cb2-8d76-d6b7b6299613', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'https://res.cloudinary.com/dd3drikgz/image/upload/lab.png', 'image');
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299611', '111d7eb4-8f35-4cb2-8d76-d6b7b6299601', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image'),
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299612', '111d7eb4-8f35-4cb2-8d76-d6b7b6299604', 'https://res.cloudinary.com/dd3drikgz/video/upload/fest.mp4', 'video'),
+('222d7eb4-8f35-4cb2-8d76-d6b7b6299613', '111d7eb4-8f35-4cb2-8d76-d6b7b6299605', 'https://res.cloudinary.com/dd3drikgz/image/upload/lab.png', 'image');
 
 -- Insert dummy likes
 INSERT INTO "Likes" ("userId", "postId")
 VALUES
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299601'), -- John likes Jane's recent post
-('e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299602'), -- Jane likes John's recent post
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299603'), -- John likes Jane's older post (gives it 1 like)
-('f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299603'), -- Bob likes Jane's older post (gives it 2 likes)
-('d748805f-0f6f-4cb1-97b7-5a1df47de510', 'p11d7eb4-8f35-4cb2-8d76-d6b7b6299605'); -- John likes Bob's older post
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299601'), -- John likes Jane's recent post
+('e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', '111d7eb4-8f35-4cb2-8d76-d6b7b6299602'), -- Jane likes John's recent post
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299603'), -- John likes Jane's older post (gives it 1 like)
+('f92d7eb4-8f35-4cb2-8d76-d6b7b62996f4', '111d7eb4-8f35-4cb2-8d76-d6b7b6299603'), -- Bob likes Jane's older post (gives it 2 likes)
+('d748805f-0f6f-4cb1-97b7-5a1df47de510', '111d7eb4-8f35-4cb2-8d76-d6b7b6299605'); -- John likes Bob's older post
 
 -- Insert dummy stories
 INSERT INTO "Stories" ("id", "userId", "mediaUrl", "type", "text_content", "text_color", "background_color", "sticker_id", "duration_seconds", "audience", "expiresAt", "createdAt")
 VALUES
 -- Jane active story (24h validity)
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image', 'First day of sem!', '#FFFFFF', '#E91E8C', 'stk_party', 10, 'followers', CURRENT_TIMESTAMP + INTERVAL '22 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', 'https://res.cloudinary.com/dd3drikgz/image/upload/quad.png', 'image', 'First day of sem!', '#FFFFFF', '#E91E8C', 'stk_party', 10, 'followers', CURRENT_TIMESTAMP + INTERVAL '22 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
 -- John active story (24h validity)
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299622', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', NULL, 'text', 'Midterm prep starting...', '#FFFFFF', '#E91E8C', NULL, 5, 'public', CURRENT_TIMESTAMP + INTERVAL '20 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299622', 'd748805f-0f6f-4cb1-97b7-5a1df47de510', NULL, 'text', 'Midterm prep starting...', '#FFFFFF', '#E91E8C', NULL, 5, 'public', CURRENT_TIMESTAMP + INTERVAL '20 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours'),
 -- Jane expired story
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299623', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', NULL, 'sticker', NULL, '#FFFFFF', '#E91E8C', 'stk_sleep', 5, 'public', CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '25 hours');
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299623', 'e81d7eb4-8f35-4cb2-8d76-d6b7b62996e3', NULL, 'sticker', NULL, '#FFFFFF', '#E91E8C', 'stk_sleep', 5, 'public', CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP - INTERVAL '25 hours');
 
 -- Insert dummy story views
 INSERT INTO "StoryViews" ("storyId", "userId")
 VALUES
-('s33d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'd748805f-0f6f-4cb1-97b7-5a1df47de510'); -- John viewed Jane's active story
+('333d7eb4-8f35-4cb2-8d76-d6b7b6299621', 'd748805f-0f6f-4cb1-97b7-5a1df47de510'); -- John viewed Jane's active story
