@@ -284,6 +284,20 @@ Checks which profile fields are filled and whether all required fields are compl
 - **Method**: `POST`
 - **Body**: `multipart/form-data` with `avatar` field.
 
+### Remove Avatar
+Removes the current user's profile picture.
+- **URL**: `/profile/me/avatar`
+- **Method**: `DELETE`
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Avatar removed successfully"
+}
+```
+
+
 ### Get Public Profile
 - **URL**: `/profile/:username`
 - **Method**: `GET`
