@@ -4,6 +4,8 @@ const PostMedia = require('./PostMedia');
 const Like = require('./Like');
 const Follow = require('./Follow');
 const Block = require('./Block');
+const Story = require('./Story');
+const StoryView = require('./StoryView');
 
 // User <-> Post
 User.hasMany(Post, { foreignKey: 'userId' });
@@ -28,4 +30,16 @@ User.belongsToMany(User, { as: 'Following', through: Follow, foreignKey: 'follow
 // User <-> Block (Self-referential)
 User.belongsToMany(User, { as: 'BlockedUsers', through: Block, foreignKey: 'blockerId', otherKey: 'blockedId' });
 
-module.exports = { User, Post, PostMedia, Like, Follow, Block };
+// User <-> Story
+User.hasMany(Story, { foreignKey: 'userId' });
+Story.belongsTo(User, { foreignKey: 'userId' });
+
+// Story <-> StoryView
+Story.hasMany(StoryView, { foreignKey: 'storyId', onDelete: 'CASCADE' });
+StoryView.belongsTo(Story, { foreignKey: 'storyId' });
+
+// User <-> StoryView
+User.hasMany(StoryView, { foreignKey: 'userId', onDelete: 'CASCADE' });
+StoryView.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { User, Post, PostMedia, Like, Follow, Block, Story, StoryView };

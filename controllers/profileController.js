@@ -171,6 +171,48 @@ const getProfileStats = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Check profile completeness
+// @route   GET /api/v1/profile/me/completeness
+// @access  Private
+const getProfileCompleteness = asyncHandler(async (req, res) => {
+  const user = await User.findByPk(req.user.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const fieldsToCheck = [
+    { name: 'full_name', value: user.full_name, required: true },
+    { name: 'department', value: user.department, required: true },
+    { name: 'year', value: user.year, required: true },
+    { name: 'semester', value: user.semester, required: true },
+    { name: 'bio', value: user.bio, required: false },
+    { name: 'avatar_url', value: user.avatar_url, required: false }
+  ];
+
+  const status = fieldsToCheck.map(field => ({
+    field: field.name,
+    filled: field.value !== null && field.value !== undefined && field.value !== '',
+    required: field.required
+  }));
+
+  const filledCount = status.filter(f => f.filled).length;
+  const totalCount = fieldsToCheck.length;
+  const percentage = Math.round((filledCount / totalCount) * 100);
+
+  const is_complete = status.filter(f => f.required).every(f => f.filled);
+
+  res.json({
+    success: true,
+    data: {
+      is_complete,
+      percentage,
+      details: status
+    }
+  });
+});
+
 module.exports = {
   getMyProfile,
   updateProfile,
@@ -178,4 +220,5 @@ module.exports = {
   removeAvatar,
   getPublicProfile,
   getProfileStats,
+  getProfileCompleteness,
 };
